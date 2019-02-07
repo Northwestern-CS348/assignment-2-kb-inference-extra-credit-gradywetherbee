@@ -142,7 +142,111 @@ class KnowledgeBase(object):
         """
         ####################################################
         # Student code goes here
+        myString = ""
 
+        if type(fact_or_rule) == Fact:
+            if not fact_or_rule in self.facts:
+                return "Fact is not in the KB"
+            fact_or_rule = self._get_fact(fact_or_rule)
+            myString += "fact: " + str(fact_or_rule.statement)
+            if fact_or_rule.asserted:
+                myString += " ASSERTED\n"
+            myString += "\n"
+
+            if fact_or_rule.supported_by:
+
+                for el in fact_or_rule.supported_by:
+                    myString += "  SUPPORTED BY\n"
+                    myString += self.kb_explainRecursive(el[0],1)
+                    myString += self.kb_explainRecursive(el[1],1)
+
+        elif type(fact_or_rule) == Rule:
+            if not fact_or_rule in self.rules:
+                return "Rule is not in the KB"
+            fact_or_rule = self._get_rule(fact_or_rule)
+            myString += "rule: ("
+            for el in fact_or_rule.lhs:
+                myString += str(el) + ", "
+            myString = myString[:-2]
+            myString += ") -> "
+
+            myString += str(fact_or_rule.rhs)
+            if(fact_or_rule.asserted):
+                myString += " ASSERTED"
+            myString += "\n"
+
+            if fact_or_rule.supported_by:
+
+                for el in fact_or_rule.supported_by:
+                    myString += "  SUPPORTED BY\n"
+                    myString += self.kb_explainRecursive(el[0],1)
+                    myString += self.kb_explainRecursive(el[1],1)
+
+        return myString
+
+    def kb_explainRecursive(self, fact_or_rule, numSpaces):
+        """
+        Explain where the fact or rule comes from
+
+        Args:
+            fact_or_rule (Fact or Rule) - Fact or rule to be explained
+
+        Returns:
+            string explaining hierarchical support from other Facts and rules
+        """
+        ####################################################
+        # Student code goes here
+        myString = ""
+
+        if isinstance(fact_or_rule, Fact):
+            if not fact_or_rule in self.facts:
+                return "Fact is not in the KB"
+            fact_or_rule = self._get_fact(fact_or_rule)
+            for i in range(0, (4 * numSpaces)):
+                myString += " "
+            myString += "fact: " + str(fact_or_rule.statement)
+            if fact_or_rule.asserted:
+                myString += " ASSERTED"
+            myString += "\n"
+
+
+
+            if fact_or_rule.supported_by:
+
+                for el in fact_or_rule.supported_by:
+                    for i in range(0, ((4 * numSpaces) + 2)):
+                        myString += " "
+                    myString += "SUPPORTED BY\n"
+                    myString += self.kb_explainRecursive(el[0], numSpaces + 1)
+                    myString += self.kb_explainRecursive(el[1], numSpaces + 1)
+
+        elif isinstance(fact_or_rule, Rule):
+            if not fact_or_rule in self.rules:
+                return "Rule is not in the KB"
+            fact_or_rule = self._get_rule(fact_or_rule)
+            for i in range(0, (4 * numSpaces)):
+                myString += " "
+            myString +=  "rule: ("
+            for el in fact_or_rule.lhs:
+                myString += str(el) + ", "
+            myString = myString[:-2]
+            myString += ") -> "
+
+            myString += str(fact_or_rule.rhs)
+            if (fact_or_rule.asserted):
+                myString += " ASSERTED"
+            myString += "\n"
+
+            if fact_or_rule.supported_by:
+
+                for el in fact_or_rule.supported_by:
+                    for i in range(0, ((4 * numSpaces) + 2)):
+                        myString += " "
+                    myString += "SUPPORTED BY\n"
+                    myString += self.kb_explainRecursive(el[0], numSpaces + 1)
+                    myString += self.kb_explainRecursive(el[1], numSpaces + 1)
+        # print("recursion #" + str(numSpaces) + ", myString = " + myString)
+        return myString
 
 class InferenceEngine(object):
     def fc_infer(self, fact, rule, kb):
